@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 1. -->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 2. -->
+<mapper namespace="com.lec.spring.repository.AttachmentRepository">
+
+    <insert id="insert" flushCache="true"
+            parameterType="arraylist">
+
+        insert into t5_attachment
+            (sourcename, filename, post_id)
+        values
+            <foreach collection="list" item="e" separator=",">
+                (#{e.sourcename}, #{e.filename}, #{param2})
+#          param2 는 repository 에서의 Long postId
+            </foreach>
+    </insert>
+
+    <insert id="save" flushCache="true"
+            parameterType="com.lec.spring.domain.Attachment">
+        insert into t5_attachment
+            (sourcename, filename, post_id)
+        values
+            (#{sourcename}, #{filename}, #{post_id})
+    </insert>
+
+    <sql id="SELECT_FILE">
+        select
+            id
+            ,sourcename
+            ,filename
+            ,post_id
+        from t5_attachment
+        where 1=1
+    </sql>
+
+    <select id="findByPost" resultType="com.lec.spring.domain.Attachment">
+        <include refid="SELECT_FILE"/>
+        and post_id = #{param1}
+        order by id asc
+    </select>
+
+    <select id="findById" resultType="com.lec.spring.domain.Attachment">
+        <include refid="SELECT_FILE"/>
+        and id = #{id}
+    </select>
+
+    <select id="findByIds" resultType="com.lec.spring.domain.Attachment"
+        parameterType="arraylist">
+        <include refid="SELECT_FILE"/>
+        and id in
+        <foreach collection="array" item="e" separator="," open="(" close=")">
+            #{e}
+        </foreach>
+        order by id asc
+    </select>
+
+    <delete id="deleteByIds" flushCache="true" parameterType="arraylist">
+        delete from t5_attachment
+        where id in(
+            <foreach collection="array" item="item" separator=",">
+                #{item}
+            </foreach>
+            )
+    </delete>
+
+    <delete id="delete" flushCache="true">
+        delete from t5_attachment
+        where id = #{id}
+    </delete>
+
+</mapper>
